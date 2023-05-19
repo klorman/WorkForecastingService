@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Вход</title>
+</head>
+<body>
+    <h1>Вход</h1>
+
+    {% if error_message %}
+        <div style="color: red;">
+            {{ error_message }}
+        </div>
+    {% endif %}
+
+    <form method="POST">
+        <label for="username">Имя пользователя</label><br>
+        <input type="text" id="username" name="username"><br>
+        <label for="password">Пароль</label><br>
+        <input type="password" id="password" name="password"><br>
+        <input type="submit" value="Login">
+    </form> 
+    <p>Нет аккаунта? <a href="{{ url_for('signup') }}">Зарегистрируйтесь</a>.</p>
+</body>
+</html>

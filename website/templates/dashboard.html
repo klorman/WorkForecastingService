@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <h1>Вы зашли в личный кабинет</h1>
+    <a href="{{ url_for('logout') }}">Logout</a>
+
+    <form method="POST" action="{{ url_for('algorithm') }}">
+        <input type="submit" value="Запустить алгоритм">
+    </form>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+</body>
+</html>

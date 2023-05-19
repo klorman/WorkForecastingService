@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Регистрация</title>
+</head>
+<body>
+    <h1>Регистрация</h1>
+
+    {% if error_message %}
+        <div style="color: red;">
+            {{ error_message }}
+        </div>
+    {% endif %}
+
+    <form method="POST">
+        <label for="username">Имя пользователя</label><br>
+        <input type="text" id="username" name="username" required><br>
+        <label for="password">Пароль</label><br>
+        <input type="password" id="password" name="password" required><br>
+        <input type="submit" value="Зарегистрироваться">
+    </form>
+
+    <p>Уже зарегистрированы? <a href="{{ url_for('login') }}">Войдите</a>.</p>
+</body>
+</html>
