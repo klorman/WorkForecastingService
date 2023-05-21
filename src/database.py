@@ -1,108 +1,118 @@
 import psycopg2
+import traceback
+import configparser
 import pandas as pd
+from logs import Logs
 
 
 class Database:
     def __init__(self):
-        # Установка соединения с базой данных
-        self.conn = psycopg2.connect(
-            host="localhost",
-            port="5432",
-            database="WorkForecastingService",
-            user="postgre",
-            password="VzeVzeVze"
-        )
+        self.logs = Logs(__name__).get_logger()
+        try:
+            config = configparser.ConfigParser()
+            config.read('config.ini')
 
-        # Создание объекта курсора
-        self.cursor = self.conn.cursor()
+            # Установка соединения с базой данных
+            self.conn = psycopg2.connect(
+                host=config.get('postgresql', 'host'),
+                database=config.get('postgresql', 'database'),
+                user=config.get('postgresql', 'user'),
+                password=config.get('postgresql', 'password')
+            )
+
+            # Создание объекта курсора
+            self.cursor = self.conn.cursor()
+            self.conn.autocommit = False
+            self.logs.info("Connected to the database successfully")
+        except (Exception, psycopg2.Error) as e:
+            self.logs.error(f"Error occurred: {e}, Traceback: {traceback.format_exc()}")
+            raise e
 
 
     def __del__(self):
-        self.cursor.close()
-        self.conn.close()
+        try:
+            if self.conn:
+                self.conn.commit()
+            if self.cursor:
+                self.cursor.close()
+            if self.conn:
+                self.conn.close()
+        except Exception as e:
+            self.logs.error(f"Error occurred during the termination: {e}, Traceback: {traceback.format_exc()}")
 
 
-    def insert_user_credentials(self, login, password_hash):
-        # SQL-запрос для добавления данных аутентификации
-        query = "INSERT INTO your_table (login, password_hash) VALUES (%s, %s)"
-        values = (login, password_hash)
+    def insert_user_credentials(self, username, password_hash):
+        try:
+            query = "INSERT INTO user_credentials (username, password_hash) VALUES (%s, %s)"
+            values = (username, password_hash)
+            self.cursor.execute(query, values)
+            self.conn.commit()
+        except Exception as e:
+            self.conn.rollback()
+            self.logs.error(f"Failed to insert user credentials: {e}, Traceback: {traceback.format_exc()}")
 
-        # Выполнение SQL-запроса с передачей значений
-        self.cursor.execute(query, values)
 
-        # Фиксация изменений
-        self.conn.commit()      
+    def select_user_by_username(self, username):
+        try:
+            query = "SELECT id, username, password_hash FROM user_credentials WHERE username = %s"
+            values = (username,)
+            self.cursor.execute(query, values)
+            return self.cursor.fetchone()
+        except Exception as e:
+            self.logs.error(f"Failed to fetch user by username: {e}, Traceback: {traceback.format_exc()}")
 
 
-    def select_password_hash_by_login(self, login):
-        # Выполнение SQL-запроса
-        query = "SELECT password_hash FROM your_table WHERE login = %s"
-        values = (login,)
-        self.cursor.execute(query, values)
-
-        # Получение данных из запроса
-        password_hash = self.cursor.fetchone()[0]
-
-        return password_hash
+    def select_user_by_id(self, user_id):
+        try:
+            query = "SELECT id, username, password_hash FROM user_credentials WHERE id = %s"
+            values = (user_id,)
+            self.cursor.execute(query, values)
+            return self.cursor.fetchone()
+        except Exception as e:
+            self.logs.error(f"Failed to fetch user by id: {e}, Traceback: {traceback.format_exc()}")
 
 
     def insert_resident_request(self, data):
-        # SQL-запрос для добавления строки
-        query = "INSERT INTO your_table (column1, column2, column3) VALUES (%s, %s, %s)"
-
-        # Значения для вставки в столбцы
-        values = ("value1", "value2", "value3")
-
-        # Выполнение SQL-запроса с передачей значений
-        self.cursor.execute(query, values)
-
-        # Фиксация изменений
-        self.conn.commit()      
+        try:
+            query = "INSERT INTO your_table (column1, column2, column3) VALUES (%s, %s, %s)"
+            values = ("value1", "value2", "value3")
+            self.cursor.execute(query, values)
+            self.conn.commit()     
+        except Exception as e:
+            self.conn.rollback()
+            self.logs.error(f"Failed to insert resident request: {e}, Traceback: {traceback.format_exc()}")
 
 
     def select_residents_requests(self):
-        # Выполнение SQL-запроса
-        query = "SELECT * FROM your_table"
-        self.cursor.execute(query)
-
-        # Получение данных из результата запроса
-        data = self.cursor.fetchall()
-
-        # Получение названий столбцов
-        columns = [desc[0] for desc in self.cursor.description]
-
-        # Создание таблицы Pandas из данных
-        df = pd.DataFrame(data, columns=columns)
-
-        return df
+        try:
+            query = "SELECT * FROM your_table"
+            self.cursor.execute(query)
+            data = self.cursor.fetchall()
+            columns = [desc[0] for desc in self.cursor.description]
+            df = pd.DataFrame(data, columns=columns)
+            return df
+        except Exception as e:
+            self.logs.error(f"Failed to fetch resident requests: {e}, Traceback: {traceback.format_exc()}")
 
 
     def insert_algorithm_result(self):
-        # SQL-запрос для добавления строки
-        query = "INSERT INTO your_table (column1, column2, column3) VALUES (%s, %s, %s)"
-
-        # Значения для вставки в столбцы
-        values = ("value1", "value2", "value3")
-
-        # Выполнение SQL-запроса с передачей значений
-        self.cursor.execute(query, values)
-
-        # Фиксация изменений
-        self.conn.commit()     
+        try:
+            query = "INSERT INTO your_table (column1, column2, column3) VALUES (%s, %s, %s)"
+            values = ("value1", "value2", "value3")
+            self.cursor.execute(query, values)
+            self.conn.commit()
+        except Exception as e:
+            self.conn.rollback()
+            self.logs.error(f"Failed to insert algorithm result: {e}, Traceback: {traceback.format_exc()}")
 
 
     def select_algorithm_result_by_id(self, id):
-        # Выполнение SQL-запроса
-        query = "SELECT * FROM your_table"
-        self.cursor.execute(query)
-
-        # Получение данных из результата запроса
-        data = self.cursor.fetchall()
-
-        # Получение названий столбцов
-        columns = [desc[0] for desc in self.cursor.description]
-
-        # Создание таблицы Pandas из данных
-        df = pd.DataFrame(data, columns=columns)
-
-        return df
+        try:
+            query = "SELECT * FROM your_table"
+            self.cursor.execute(query)
+            data = self.cursor.fetchall()
+            columns = [desc[0] for desc in self.cursor.description]
+            df = pd.DataFrame(data, columns=columns)
+            return df
+        except Exception as e:
+            self.logs.error(f"Failed to fetch algorithm result by id: {e}, Traceback: {traceback.format_exc()}")
