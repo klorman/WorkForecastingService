@@ -1,0 +1,19 @@
+body {
+    font-family: 'Times New Roman', Times, serif;
+}
+.container{
+    margin: 0px 370px;
+    color: #346FC7;
+    stroke: color: #B44545;
+    stroke-width: 1;
+}
+
+.color-txt{
+    color: #B44545;
+}
+
+.mes{
+    margin: 0px 865px;
+    font-weight: bold;
+    font-size: 24px;
+}
