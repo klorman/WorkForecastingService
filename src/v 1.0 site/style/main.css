@@ -4,8 +4,6 @@ body {
 .container{
     margin: 0px 370px;
     color: #346FC7;
-    stroke: color: #B44545;
-    stroke-width: 1;
 }
 
 .color-txt{
@@ -21,19 +19,21 @@ body {
 }
 
 .reg{
-    height: 100%;
-    width: 100 %;
+    
 }
 .form-box{
-    height: 380px;
-    width: 380px;
-    position: relative;
-    margin: 6% auto;
-    background: rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(3.4px);
-    padding: 5x;
-    overflow: hidden;
+    background: rgba(0, 0, 0,0.7);    
+    backdrop-filter: blur(5.5px);
     border-radius: 10px;
+    
+    width: 380px;
+    height: 380px;
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 1.2px solid rgba(0, 0, 0,.2);
+    overflow: hidden;
 }
 
 .toggle-btn{
@@ -43,6 +43,7 @@ body {
     border: 0;
     outline: none;
     position: relative;
+    color: #fff;
 }
 
 #btn{
@@ -63,6 +64,7 @@ body {
 }
 
 .input-group{
+    color: white;
     top: 120px;
     position: absolute;
     width: 280px;
@@ -77,6 +79,7 @@ body {
     border-right: 0;
     border-top: 0;
     border-bottom: 1px solid #494949;
+    color: #fff;
     outline: 0;
     background: transparent;
 }
@@ -89,6 +92,7 @@ body {
     margin-right: auto;
     background: #346FC7;
     border: 0;
+    color: #fff;
     outline: none;
     border-radius: 10px;
    position: absolute;
@@ -119,6 +123,32 @@ body {
     }
 }
 .pas-btn{
+    position: absolute;
+    width: 30px;
+    height: 20px;
+    right: -2px;
+    top: 55px;
+    cursor: pointer;
+    &::after{
+        position: absolute;
+        content: '';
+        width: 18px;
+    height: 1px;
+    right: 10px;
+    top: 9.5px;
+    background: black;
+    transform: rotate(45deg);
+        transition: .3s all ease;
+        opacity: 1;
+    }
+}
+
+.pass-btn.active{
+    &::after{
+        opacity: 0;
+    }
+}
+.pass-btn{
     position: absolute;
     width: 30px;
     height: 20px;
