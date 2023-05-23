@@ -1,13 +1,13 @@
 body {
     font-family: 'Times New Roman', Times, serif;
-    background-image: url(images/exmp.svg);
+    background-image: url(images/gh.svg);
     background-repeat: no-repeat;
     background-size: cover;
 }
 .container{
     margin: 0px 370px;
     color: #346FC7;
-    font-size: 32px;
+    font-size: 36px;
 }
 
 .color-txt{
@@ -16,6 +16,7 @@ body {
 
 .mes{
     margin: 0px 1100px; 
+    color: #fff;
     font-weight: bold;
     font-size: 45px;
     position: absolute;
@@ -91,7 +92,7 @@ body {
 
 .input-field{
     width: 100%;
-    font-size: small;
+    font-size: medium;
     padding: 10px 0px;
     margin: 5px 0px;
     border-left: 0;
