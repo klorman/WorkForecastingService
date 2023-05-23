@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, flash
+from flask import Flask, render_template, redirect, url_for, request, flash, jsonify
 from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 import traceback
@@ -47,46 +47,42 @@ def handle_error(e):
 
 @app.route('/')
 def index():
-    return redirect(url_for('login'))
-
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    error_login = ''
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-        remember = True if request.form.get('remember') else False
-
-        user = User.find_by_username(username)
-
-        if not user or not check_password_hash(user.password, password):
-            error_login = 'Неправильное имя пользователя или пароль.'
-            return render_template('login.html', error_message=error_login)
-
-        login_user(user, remember=remember)
-        return redirect(url_for('dashboard'))
-
-    return render_template('login.html')
+    return redirect(url_for('login_signup'))
 
 
 @app.route('/signup', methods=['GET', 'POST'])
-def signup():
+@app.route('/login', methods=['GET', 'POST'])
+def login_signup():
+    error_login = ''
     error_signup = ''
+
     if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
+        if 'login' in request.form:
+            username = request.form.get('username')
+            password = request.form.get('password')
+            remember = True if request.form.get('remember') else False
 
-        user = User.find_by_username(username)
+            user = User.find_by_username(username)
 
-        if user:
-            error_signup = 'Пользователь с таким именем уже существует.'
-        else:
-            password_hash = generate_password_hash(password, method='sha256')
-            db.insert_user_credentials(username, password_hash)
-            return redirect(url_for('login'))
+            if not user or not check_password_hash(user.password, password):
+                error_login = 'Неправильное имя пользователя или пароль.'
+            else:
+                login_user(user, remember=remember)
+                return redirect(url_for('dashboard'))
+        elif 'signup' in request.form:
+            username = request.form.get('username')
+            password = request.form.get('password')
 
-    return render_template('signup.html', error_message=error_signup)
+            user = User.find_by_username(username)
+
+            if user:
+                error_signup = 'Пользователь с таким именем уже существует.'
+            else:
+                password_hash = generate_password_hash(password, method='sha256')
+                db.insert_user_credentials(username, password_hash)
+                return redirect(url_for('login_signup'))
+
+    return render_template('site.html', error_login=error_login, error_signup=error_signup)
 
 
 @app.route('/dashboard')
