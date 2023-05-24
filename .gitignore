@@ -1,2 +1,4 @@
 site/utils/__pycache__/
 site/*.log
+data_downloader_service/__pycache__/
+data_downloader_service/*.log
