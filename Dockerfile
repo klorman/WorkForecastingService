@@ -14,11 +14,11 @@ RUN apt update && apt install -y \
 
 # Установка зависимостей Python
 COPY requirements.txt /app/requirements.txt
-COPY work.backup /app/work.backup
+COPY /DB_backup/work.backup /app/work.backup
 RUN pip3 install --no-cache-dir -r /app/requirements.txt
 
 # Копирование исходного кода приложения в контейнер
-COPY /src/. /app
+COPY /site/. /app
 
 #Настройка postgresql
 RUN service postgresql start \

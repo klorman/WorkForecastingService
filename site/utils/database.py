@@ -1,16 +1,18 @@
 import psycopg2
 import traceback
 import configparser
+import os
 import pandas as pd
-from logs import Logs
+from .logs import Logs
 
 
 class Database:
     def __init__(self):
         self.logs = Logs(__name__).get_logger()
         try:
+            config_file_path = os.path.join(os.path.dirname(__file__), '..', 'configs', 'config.ini')
             config = configparser.ConfigParser()
-            config.read('config.ini')
+            config.read(config_file_path)
 
             # Установка соединения с базой данных
             self.conn = psycopg2.connect(

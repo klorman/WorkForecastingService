@@ -1,3 +1,2 @@
-src/__pycache__/
-src/*.log
-work.backup
+site/utils/__pycache__/
+site/*.log
