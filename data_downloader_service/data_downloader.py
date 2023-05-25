@@ -2,7 +2,7 @@ import os
 import requests
 import configparser
 import time
-from logs import Logs
+from utils.logs import Logs
 
 logs = Logs(__name__).get_logger()
 
