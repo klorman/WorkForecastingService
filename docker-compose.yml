@@ -1,0 +1,28 @@
+version: '3'
+services:
+  db:
+    build:
+      context: .
+      dockerfile: Dockerfile-postgres
+    networks:
+      mynetwork:
+        ipv4_address: 172.20.0.2
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile-flask
+    networks:
+      mynetwork:
+        ipv4_address: 172.20.0.3
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+
+
+networks:
+  mynetwork:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/24      

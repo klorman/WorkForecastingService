@@ -1,0 +1,378 @@
+body {
+    font-family: 'Times New Roman', Times, serif;
+    background-image: url(../images/gh.svg);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+    background-attachment: fixed;            /* фон */
+}
+.container{
+    margin: 0px 370px;
+    color: #346FC7;
+    font-size: 36px;
+}
+
+.color-txt{
+    color: #B44545;
+}
+
+.mes{
+    margin: 0px 1100px; 
+    white-space: nowrap;
+    color: #fff;
+    font-weight: bold;
+    font-size: 42px;
+    position: absolute;
+    top: 25%;
+    right: 1%;
+}
+
+.form-box{
+    background: rgba(0, 0, 0,0.6);    
+    backdrop-filter: blur(5.5px);
+    border-radius: 10px;
+    width: 400px;
+    height: 400px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 1.2px solid rgba(0, 0, 0,.2);
+    overflow: hidden;
+}
+
+.toggle-btn{
+    padding: 10px 15px;
+    font-size: medium;
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+    outline: none;
+    position: relative;
+    color: #fff;
+    left: 10%;
+}
+
+.tog-btn{
+    padding: 10px 20px;
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+    outline: none;
+    position: relative;
+    color: #fff;
+    right: 10%;
+}
+
+
+#btn{
+    top: 0;
+    left: 0;
+    position: absolute;
+    width: 110px;
+    height: 100%;
+    border-radius: 10px;
+    background: #346FC7;
+    transition: .5s;
+}
+
+.button-box{
+    width: 220px;
+    margin: 30px auto;
+    position: relative;
+}
+
+.input-group{
+    color: white;
+    top: 120px;
+    position: absolute;
+    width: 280px;
+    transition: .5s;             /* задержка */
+}
+
+.input-field{
+    width: 100%;
+    font-size: medium;
+    padding: 10px 0px;
+    margin: 5px 0px;
+    border-left: 0;
+    border-right: 0;
+    border-top: 0;
+    border-bottom: 1px solid rgba(0, 0, 0,.2);
+    color: #fff;
+    outline: 0;
+    background: transparent;
+}
+
+.submit-btn{
+    widows: 85%;
+    padding: 10px 30px;
+    font-size: medium;
+    font-weight: bold;
+    cursor: pointer;
+    display: block;
+    margin-right: auto;
+    background: #346FC7;
+    border: 0;
+    color: #fff;
+    outline: none;
+    border-radius: 10px;
+   position: absolute;
+   margin-top: 30px;
+}
+
+.checkbox{
+    margin: 20px 10px 30px 0;
+}
+
+.span1{
+    color: #346FC7;
+    font-size: 12px;
+    bottom: 60px;
+    position: absolute;
+}
+#login{
+    left: 50px;
+}
+
+#register{
+    left: 450px;
+}
+
+.pas-btn.active{
+    &::after{
+        opacity: 0;
+    }
+}
+.pas-btn{
+    position: absolute;
+    width: 30px;
+    height: 20px;
+    right: -2px;
+    top: 55px;
+    cursor: pointer;
+    &::after{
+        position: absolute;
+        content: '';
+        width: 18px;
+    height: 1px;
+    right: 10px;
+    top: 9.5px;
+    background: black;
+    transform: rotate(45deg);
+        transition: .3s all ease;
+        opacity: 1;
+    }
+}
+
+.pass-btn.active{
+    &::after{
+        opacity: 0;
+    }
+}
+.pass-btn{
+    position: absolute;
+    width: 30px;
+    height: 20px;
+    right: -2px;
+    top: 55px;
+    cursor: pointer;
+    &::after{
+        position: absolute;
+        content: '';
+        width: 18px;
+    height: 1px;
+    right: 10px;
+    top: 9.5px;
+    background: black;
+    transform: rotate(45deg);
+        transition: .3s all ease;
+        opacity: 1;
+    }
+}
+
+@media only screen and (max-width: 1600px) {
+
+    .container{
+    margin: 0px 80px;
+    color: #346FC7;
+    font-size: 24px;
+    }
+
+    .mes{
+    white-space: nowrap;
+    margin: 0px 1100px; 
+    color: #fff;
+    font-weight: bold;
+    font-size: 32px;
+    position: absolute;
+    top: 20%;
+    right: -25%;
+    }
+
+    .form-box{
+        background: rgba(0, 0, 0,0.6);    
+    backdrop-filter: blur(5.5px);
+    border-radius: 10px;
+    width: 380px;
+    height: 380px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 1.2px solid rgba(0, 0, 0,.2);
+    overflow: hidden;
+    }
+}
+
+@media only screen and (max-width: 1312px) {
+
+    .container{
+    margin: 0px 80px;
+    color: #346FC7;
+    font-size: 18px;
+    }
+
+    .mes{
+    white-space: nowrap;
+    margin: 0px 1100px; 
+    color: #fff;
+    font-weight: bold;
+    font-size: 28px;
+    position: absolute;
+    top: 18%;
+    left: -40%;
+    }
+
+    .form-box{
+        background: rgba(0, 0, 0,0.6);    
+    backdrop-filter: blur(5.5px);
+    border-radius: 10px;
+    width: 360px;
+    height: 360px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 1.2px solid rgba(0, 0, 0,.2);
+    overflow: hidden;
+    }
+}
+
+
+@media only screen and (max-width: 1200px) {
+
+    .container{
+    margin: 0px 100px;
+    color: #346FC7;
+    font-size: 24px;
+    }
+
+    .mes{
+    white-space: nowrap;
+    margin: 0px 1100px; 
+    color: #fff;
+    font-weight: bold;
+    font-size: 32px;
+    position: absolute;
+    top: 15%;
+    right: -50%;
+    }
+
+    .form-box{
+        background: rgba(0, 0, 0,0.6);    
+    backdrop-filter: blur(5.5px);
+    border-radius: 10px;
+    width: 380px;
+    height: 380px;
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 1.2px solid rgba(0, 0, 0,.2);
+    overflow: hidden;
+    }
+}
+
+@media only screen and (max-width: 984px) {
+
+    .container{
+    margin: 0px 80px;
+    color: #346FC7;
+    font-size: 15px;
+    }
+
+    .mes{
+    white-space: nowrap;
+    margin: 0px 1100px; 
+    color: #fff;
+    font-weight: bold;
+    font-size: 24px;
+    position: absolute;
+    top: 15%;
+    left: -70%;
+    }
+
+    .form-box{
+        background: rgba(0, 0, 0,0.6);    
+    backdrop-filter: blur(5.5px);
+    border-radius: 10px;
+    width: 280px;
+    height: 280px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 1.2px solid rgba(0, 0, 0,.2);
+    overflow: hidden;
+    }
+
+    .toggle-btn{
+        padding: 10px 20px;
+        font-size: small;
+        cursor: pointer;
+        background: transparent;
+        border: 0;
+        outline: none;
+        position: relative;
+        color: #fff;
+        left: 15%;
+    }
+    
+    .tog-btn{
+        padding: 5px 20px;
+        cursor: pointer;
+        background: transparent;
+        border: 0;
+        outline: none;
+        position: relative;
+        color: #fff;
+        right: 18%;
+    }
+
+    #btn{
+        top: 0;
+        left: 0;
+        position: absolute;
+        width: 108px;
+        height: 100%;
+        border-radius: 10px;
+        background: #346FC7;
+        transition: .5s;
+    }
+
+    .input-field{
+    width: 100%;
+    font-size: smaller;
+    padding: 5px 0px;
+    margin-top: -20%;
+    border-left: 0;
+    border-right: 0;
+    border-top: 0;
+    border-bottom: 1px solid rgba(0, 0, 0,.2);
+    color: #fff;
+    outline: 0;
+    background: transparent;
+    }
+}
+

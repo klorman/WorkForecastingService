@@ -1,0 +1,23 @@
+# Используем базовый образ Ubuntu 22.04
+FROM ubuntu:22.04
+
+# Устанавливаем необходимые переменные среды
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Установка необходимых пакетов для Ubuntu и Python
+RUN apt update && apt install -y \
+    netcat \
+    python3 \
+    python3-pip \
+    libpq-dev \
+    python3-dev
+
+# Установка зависимостей Python
+COPY requirements-flask.txt /app/requirements-flask.txt
+RUN pip3 install --no-cache-dir -r /app/requirements-flask.txt
+
+# Копирование исходного кода приложения в контейнер
+COPY /src/. /app
+
+# Запуск Flask-приложения
+CMD while ! nc -z db 5432; do sleep 1; done && cd app && python3 app.py
