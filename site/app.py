@@ -3,8 +3,9 @@ from flask_login import LoginManager, UserMixin, login_required, login_user, log
 from werkzeug.security import generate_password_hash, check_password_hash
 import traceback
 
-from utils.database import Database
-from utils.logs import Logs
+from database import Database
+from logs import Logs
+
 
 logs = Logs(__name__).get_logger()
 
