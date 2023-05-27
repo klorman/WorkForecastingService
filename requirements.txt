@@ -1,7 +1,0 @@
-pandas
-flask
-flask-login
-werkzeug
-psycopg2-binary
-psycopg2
-openpyxl
