@@ -1,4 +1,5 @@
 body{
+    width: 100%;
     margin: 0;
     font-family: 'Times New Roman', Times, serif;
     height: 100vh;
@@ -54,8 +55,8 @@ ul, li{
 
 .search_nav{
     position: fixed;
-    padding-top: 100px;
-    left: 1100px;
+    padding-top: 110px;
+    left: 1020px;
     width: 120%;
     max-width: 380px;
 }
@@ -67,7 +68,7 @@ input{
     font-size: 16px;
     color: #fff;
     font-weight: 400;
-    background: rgba(26, 25, 25, 0.3);
+    background: rgba(26, 25, 25, 0.6);
     backdrop-filter: blur(3.4px);
     border: none;
     outline: none;
@@ -85,22 +86,21 @@ p{
     font-weight: bold;
     align-items: center;
     position: relative;
-    top: 30px;
-    left: 130px;
-    
+    top: 20px;
+    left: 48%;
     
 }
 
-.form-box{
+.form-dash{
     white-space: nowrap;
     position: fixed;
-    top: 30%;
-    left: 45%;
+    top: 20%;
+    left: 140px;
     background: rgba(0, 0, 0,0.6);    
     backdrop-filter: blur(5.5px);
     border-radius: 10px;
-    width: 380px;
-    height: 380px;
+    width: 90%;
+    height: 950px;
     border: 1.2px solid rgba(0, 0, 0, 0.2);
     overflow: hidden;
 }
@@ -115,6 +115,7 @@ p{
     position: relative;
     color: #fff;
     left: 0%;
+    top: 0px;
 }
 
 .tog-btn{
@@ -130,7 +131,7 @@ p{
 
 #btn{
     position: absolute;
-    top: 0;
+    top: -30;
     left: 0;
     width: 140px;
     height: 100%;
@@ -140,8 +141,8 @@ p{
 }
 
 .button-box{
-    width: 230px;
-    margin: 100px auto;
+    width: 220px;
+    margin: 70px auto;
     position: relative;
     right: 20px;
 }
@@ -149,68 +150,82 @@ p{
 .low-str{
     white-space: nowrap;
     position: relative;
-    top: -20px;
-    padding: 0px 10px;
+    top: -40px;
+    left: 0px;
+    padding: 0px 550px;
 }
 
 #adr{
-    padding: 0px 10px;
+    padding: 0px 20px;
     width: 300px;
+    position: relative;
+    right: -1750px;
     text-decoration: none;
-    text-align: center;
-    align-items: center;
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 500;
     color: #fff;
 }
 
 #wk{
-    padding: 0px 10px;
+    padding: 0px 20px;
     width: 300px;
+    position: relative;
+    right: -1750px;
     text-decoration: none;
-    text-align: center;
-    align-items: center;
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 500;
     color: #fff;
+}
+
+#ddt{
+    padding: 0px 20px;
+    width: 300px;
+    text-decoration: none;
+    font-size: 20px;
+    font-weight: 500;
+    color: #fff;
+    overflow: hidden;
 }
 
 .oth-str{
     white-space: nowrap;
+    font-size: 16px;
     position: relative;
-    top: -45px;
-    padding: 0px 8px;
+    top: -55px;
+    left: 0;
+    padding: 0px 2215px;
 }
 
 #adr{
-    padding: 0px 10px;
+    
+    padding: 0px 30px;
     width: 300px;
+    position: relative;
+    left: -430px;
     text-decoration: none;
-    text-align: center;
-    align-items: center;
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 500;
     color: #fff;
 }
 
 #wk{
-    padding: 0px 10px;
+    padding: 0px 20px;
     width: 300px;
+    position: relative;
+    left: -430px;
     text-decoration: none;
-    text-align: center;
-    align-items: center;
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 500;
     color: #fff;
 }
 
 #dt{
-    padding: 0px 10px;
+    padding: 0px 20px;
     width: 300px;
+    position: relative;
+    left: -430px;
     text-decoration: none;
-    text-align: center;
-    align-items: center;
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 500;
     color: #fff;
 }
@@ -220,6 +235,7 @@ p{
 }
 
 #capital{
-    left: 440px;
+    left: 490px;
     
 }
+
