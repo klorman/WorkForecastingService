@@ -115,22 +115,18 @@ class Database:
     def select_house_mkd(self):
         try:
             query = """
-            SELECT house_mkd.id, house_mkd.name, house_mkd.col_754, house_mkd.col_756, house_mkd.col_757, col_758.name, 
-            house_mkd.col_759, house_mkd.col_760, house_mkd.col_761, house_mkd.col_762, house_mkd.col_763, house_mkd.col_764, 
-            col_769.name, col_770.name, house_mkd.col_771, house_mkd.col_772, col_781.name, house_mkd.unom, col_2463.name, 
-            col_3163.name, col_3243.name, house_mkd.col_3363, house_mkd.col_3468, house_mkd.unom, house_mkd.coordinates
+            SELECT house_mkd.col_756, col_758.name, house_mkd.col_760, house_mkd.col_761, house_mkd.col_762, house_mkd.col_763, 
+            house_mkd.col_764, col_769.name, col_770.name, house_mkd.col_771, house_mkd.col_772, col_781.name, house_mkd.col_3363
             FROM public.house_mkd
             JOIN col_758 ON col_758.ID = house_mkd.col_758
             JOIN col_769 ON col_769.ID = house_mkd.col_769
             JOIN col_770 ON col_770.ID = house_mkd.col_770
-            JOIN col_781 ON col_781.ID = house_mkd.col_781
-            JOIN col_2463 ON col_2463.ID = house_mkd.col_2463
-            JOIN col_3163 ON col_3163.ID = house_mkd.col_3163
-            JOIN col_3243 ON col_3243.ID = house_mkd.col_3243;
+            JOIN col_781 ON col_781.ID = house_mkd.col_781;
             """
             self.cursor.execute(query)
             data = self.cursor.fetchall()
-            columns = [desc[0] for desc in self.cursor.description]
+            columns = ["COL_756", "COL_758", "COL_759", "COL_760", "COL_761", "COL_762", "COL_763", 
+                       "COL_765", "COL_769", "COL_770", "COL_771", "COL_772", "COL_781", "COL_3363"]
             df = pd.DataFrame(data, columns=columns)
             df = df.fillna('')
             return df
@@ -181,6 +177,25 @@ class Database:
             self.conn.rollback()
             self.logs.error(f"Failed to insert incident urban: {e}, Traceback: {traceback.format_exc()}")
             raise e
+        
+
+    def select_incidents_urban(self):
+        try:
+            query = """
+            SELECT event_types.name, incidents_urban.dateend, incidents_urban.datebegin
+            FROM public.incidents_urban
+            JOIN incidents_urban ON incidents_urban.id = incidents_urban.event_types;
+            """
+            self.cursor.execute(query)
+            data = self.cursor.fetchall()
+            columns = ["Наименование", "Дата закрытия", "Дата создания во внешней системе"]
+            df = pd.DataFrame(data, columns=columns)
+            df = df.fillna('')
+            return df
+
+        except Exception as e:
+            self.logs.error(f"Failed to select incidents urban: {e}, Traceback: {traceback.format_exc()}")
+            return pd.DataFrame()
 
 
     def insert_major_repairs(self, row):
@@ -190,12 +205,20 @@ class Database:
             except ValueError:
                 return
             
+            query = "SELECT id FROM major_repairs_types WHERE name = %s"
+            values = (row['WORK_NAME'],)
+            self.cursor.execute(query, values)
+            result = self.cursor.fetchone()
+            if result is None:
+                return
+            major_rapair_type = result[0]
+
             query = """
             INSERT INTO major_repairs(PERIOD, WORK_NAME, NUM_ENTRANCE, ELEVATORNUMBER, PLAN_DATE_START, PLAN_DATE_END, 
             FACT_DATE_START, FACT_DATE_END, ADMAREA, DISTRICT, ADDRESS, UNOM) 
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
-            values = (row['PERIOD'], row['WORK_NAME'], row['NUM_ENTRANCE'], row['ElevatorNumber'], row['PLAN_DATE_START'], 
+            values = (row['PERIOD'], major_rapair_type, row['NUM_ENTRANCE'], row['ElevatorNumber'], row['PLAN_DATE_START'], 
                       row['PLAN_DATE_END'], row['FACT_DATE_START'], row['FACT_DATE_END'], row['AdmArea'], 
                       row['District'], row['Address'], unom)
             self.cursor.execute(query, values)
@@ -204,6 +227,33 @@ class Database:
             self.conn.rollback()
             self.logs.error(f"Failed to insert major repairs: {e}, Traceback: {traceback.format_exc()}")
             raise e
+        
+
+    def select_major_repairs(self):
+        try:
+            query = """
+            SELECT major_repairs_types.name, major_repairs.plan_date_start, major_repairs.fact_date_start
+            FROM public.major_repairs
+            JOIN major_repairs_types ON major_repairs_types.id = major_repairs.work_name;
+            """
+            self.cursor.execute(query)
+            data = self.cursor.fetchall()
+            columns = ["WORK_NAME", "PLAN_DATE_START", "FACT_DATE_START"]
+            df = pd.DataFrame(data, columns=columns)
+            df = df.fillna('')
+            return df
+
+        except Exception as e:
+            self.logs.error(f"Failed to select major repairs: {e}, Traceback: {traceback.format_exc()}")
+            return pd.DataFrame()
+        
+
+    def get_training_data(self):
+        df_house_mkd = self.select_house_mkd()
+        df_incidents_urban = self.select_incidents_urban()
+        df_major_repairs = self.select_major_repairs()
+        df_combined = pd.concat([df_house_mkd, df_incidents_urban, df_major_repairs], axis=1)
+        return df_combined
         
 
     def select_address_and_coordinates_by_unom(self, unom):
@@ -389,26 +439,39 @@ class Database:
             self.logs.error(f"Failed to fetch user by id: {e}, Traceback: {traceback.format_exc()}")
 
 
-    def insert_algorithm_result(self):
+    def insert_major_repairs_results(self, rows):
         try:
-            #TODO
-            query = "INSERT INTO your_table (column1, column2, column3) VALUES (%s, %s, %s)"
-            values = ("value1", "value2", "value3")
-            self.cursor.execute(query, values)
+            if rows is None:
+                return
+
+            query = "INSERT INTO major_repairs_results (major_repairs_types, unom, date) VALUES (%s, %s, %s)"
+            values = []
+            for row in rows:
+                unom = row[0]
+                major_rapairs_type = row[1]
+                date = row[2]
+                query = "SELECT id FROM major_repairs_types WHERE name = %s"
+                values = (major_rapairs_type,)
+                self.cursor.execute(query, values)
+                work_type = self.cursor.fetchone()
+                values.append((work_type, unom, date))
+            self.cursor.executemany(query, values)
             self.conn.commit()
         except Exception as e:
             self.conn.rollback()
             self.logs.error(f"Failed to insert algorithm result: {e}, Traceback: {traceback.format_exc()}")
 
 
-    def select_algorithm_result_by_id(self, id):
+    def select_major_repairs_result_by_id(self, id):
         try:
-            #TODO
-            query = "SELECT * FROM major_repairs_results"
-            self.cursor.execute(query)
-            data = self.cursor.fetchall()
-            columns = [desc[0] for desc in self.cursor.description]
-            df = pd.DataFrame(data, columns=columns)
-            return df
+            query = """
+            SELECT major_repairs_types.name, major_repairs_results.unom, major_repairs_results.date
+            FROM major_repairs_results
+            JOIN major_repairs_types ON major_repairs_types.id = major_repairs_results.major_repairs_types
+            WHERE id = %s
+            """
+            values = (id,)
+            self.cursor.execute(query, values)
+            return self.cursor.fetchone()
         except Exception as e:
             self.logs.error(f"Failed to fetch algorithm result by id: {e}, Traceback: {traceback.format_exc()}")
