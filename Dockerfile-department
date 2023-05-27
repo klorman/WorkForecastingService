@@ -1,0 +1,25 @@
+# Используем базовый образ Ubuntu 22.04
+FROM ubuntu:22.04
+
+# Устанавливаем необходимые переменные среды
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Установка необходимых пакетов для Ubuntu и Python
+RUN apt update && apt install -y \
+    python3 \
+    python3-pip \
+    libpq-dev \
+    python3-dev
+
+# Установка зависимостей Python
+COPY requirements-department.txt /department/requirements-department.txt
+RUN pip3 install --no-cache-dir -r /department/requirements-department.txt
+
+# Копирование исходного кода эмулятора сервера департамента
+COPY /src/. /department
+
+# Копирование файлов в папку для отправки с неё файлов
+COPY /datasets/. /etc/datasets
+
+# Запуск эмулятора сервера
+CMD cd department/department_server_emulation && python3 emulator.py
