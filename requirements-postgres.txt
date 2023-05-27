@@ -5,3 +5,4 @@ werkzeug
 psycopg2-binary
 psycopg2
 openpyxl
+requests

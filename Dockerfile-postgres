@@ -6,6 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Установка необходимых пакетов для Ubuntu и Python
 RUN apt update && apt install -y \
+    netcat \
     python3 \
     python3-pip \
     postgresql-14 \ 
@@ -13,12 +14,22 @@ RUN apt update && apt install -y \
     python3-dev
 
 # Установка зависимостей Python
-COPY requirements-postgres.txt /service/requirements-postgres.txt
-COPY /DB_backup/work.backup /database/work.backup
+COPY requirements-postgres.txt /service/requirements-postgres.txt 
 RUN pip3 install --no-cache-dir -r /service/requirements-postgres.txt
 
-# Обновляем значение listen_addresses в файле конфигурации
+# Копирование бэкапа БД
+COPY /DB_backup/work.backup /database/work.backup
+
+# Копирование исходного кода сервиса для загрузки данных с сервера департамента в контейнер
+COPY /src/. /service
+
+# Создание папок для скачивания файлов с сервера департамента и пользовательких устройств
+RUN mkdir /etc/datasets_department
+RUN mkdir /etc/datasets_users
+
+# Изменяем файлы конфигураций postgresql для возможности подключения с другого хоста
 RUN sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/" /etc/postgresql/14/main/postgresql.conf
+RUN echo "host    workforecastingservice     postgres     172.20.0.4/32    trust" >> /etc/postgresql/14/main/pg_hba.conf
 RUN echo "host    workforecastingservice     postgres     172.20.0.3/32    trust" >> /etc/postgresql/14/main/pg_hba.conf
 
 #Настройка postgresql
@@ -27,5 +38,5 @@ RUN service postgresql start \
     && su - postgres -c "psql -c \"CREATE DATABASE workforecastingservice;\"" \
     && su - postgres -c "pg_restore -U postgres -d workforecastingservice /database/work.backup"
 
-# Запуск БД
-CMD service postgresql start && tail -f /dev/null
+# Запуск БД и сервиса для загрузки данных с сервера департамента
+CMD service postgresql start && while ! nc -z department 5050; do sleep 1; done && cd service && python3 data_download_import.py

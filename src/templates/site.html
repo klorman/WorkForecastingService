@@ -4,48 +4,116 @@
   <meta charset="UTF-8">
   <link rel="shortcut icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='style/main.css') }}">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" 
-  integrity="sha512-1cK78a1o+ht2JcaW6g8OXYwqpev9+6GqOkz9xmBN9iUUhIndKtxwILGWYOSibOKjLsEdjyjZvYDq/cZwNeak0w==" 
-  crossorigin="anonymous" referrerpolicy="no-referrer" />       <!-- Подключение анимаций -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css"
+        integrity="sha512-1cK78a1o+ht2JcaW6g8OXYwqpev9+6GqOkz9xmBN9iUUhIndKtxwILGWYOSibOKjLsEdjyjZvYDq/cZwNeak0w=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"/>       <!-- Подключение анимаций -->
+  <script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=pIu-YR0AJZrilx0wkK2T7REA_GiR-516vEHHMBtCtF4_ruAtVYDOz-jq0bwgOM1kBJhKyySOuf332BMIvndJ2Bdje31R07jS0VGhNb8GER-NZdb0O7mcMvfF2uXg-fiteHtJwLwROE5eHt4LxiA6wg" charset="UTF-8"></script><link rel="stylesheet" crossorigin="anonymous" href="https://gc.kis.v2.scr.kaspersky-labs.com/E3E8934C-235A-4B0E-825A-35A08381A191/abn/main.css?attr=aHR0cHM6Ly9jZG4uZGlzY29yZGFwcC5jb20vYXR0YWNobWVudHMvMTA2NjA4MTU1NTQwNTA5NTA2Mi8xMTEyMDkzOTcyNjcyODE5MjMwL3NpdGUuaHRtbA"/><script src="https://kit.fontawesome.com/yourcode.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <title>Document</title>
 </head>
 <body>
-  <div class="header">
-    <div class="container">
-      <h1>Д<span style="color: #B44545;">ЖКХ</span></h1> <!-- изменение цвета текста отдельной буквы "Д" -->
-    </div>
+<div class="header">
+  <div class="container">
+    <h1>Д<span style="color: #B44545;">ЖКХ</span></h1> <!-- изменение цвета текста отдельной буквы "Д" -->
   </div>
-  <div class="mes" data-aos="zoom-in">
-    <span id="messageSpan"></span>
+</div>
+<!--<div class="mes" data-aos="zoom-in">
+  <span id="messageSpan"></span>
+</div>-->
+
+<div class="glass-div">
+  <span>
+    <i class="fa-solid fa-house fa-2xl form-header-icon"></i>
+  </span>
+  <p class="form-header"><b>Добро пожаловать!</b></p>
+  <div class="switchable-buttons">
+    <button id="switchLogin" class="active" onclick="toggleForm('loginForm')">Вход</button>
+    <button id="switchRegister" onclick="toggleForm('registrationForm')">Регистрация</button>
+  </div>
+  <div id="loginForm" class="form active">
+    <!-- Login form -->
+    <form id="login" method="POST" action="{{ url_for('login_signup') }}">
+      <div class="input-container">
+        <input type="text" name="username" required>
+        <label class="input-label">Логин</label>
+      </div>
+
+      <div class="input-container">
+        <input type="text" name="password" id="password-input" required>
+        <label class="input-label">Пароль</label>
+        <span class="toggle-password" onclick="togglePassword('password-input', 'toggle-icon')">
+		  <i id="toggle-icon" class="fa-solid fa-eye"></i>
+		</span>
+      </div>
+
+      <div type="submit" class="button-container">
+        <button name="login">Войти</button>
+      </div>
+    </form>
   </div>
 
-<div class="reg">
-        <div class="form-box">
-            <div class="button-box">
-            <div id="btn"></div>
-            <button type="button" class="toggle-btn tog-btn" onclick="login()">Вход</button>
-            <button type="button" class="toggle-btn" onclick="register()">Регистрация</button>
-            </div>
-            <form id="login" class="input-group" method="POST" action="{{ url_for('login_signup') }}">
-              <input type="text" class="input-field" name="username" placeholder="Логин" required>
-              <input type="password" class="input-field pas" name="password" placeholder="Пароль" required>
-                <div class="pas-btn"><img src="{{ url_for('static', filename='images/-icon-eye.png') }}" alt="img"></div>
-                <input type="checkbox" class="checkbox"> <span>Запомнить пароль</span>
-                <button type="submit" class="submit-btn" name="login">Войти</button>
-            </form>
-            <form id="register" class="input-group" method="POST" action="{{ url_for('login_signup') }}">
-              <input type="text" class="input-field" name="username" placeholder="Логин" required>
-              <input type="password" class="input-field passw" name="password" placeholder="Пароль" required>
-                <div class="pass-btn"><img src="{{ url_for('static', filename='images/-icon-eye.png') }}" alt="img"></div>
-                <button type="submit" class="submit-btn" name="signup">Зарегистрироваться</button>
-            </form>
-        </div>
-        </div>
-    </div>
+  <div id="registrationForm" class="form">
+    <!-- Login form -->
+    <form id="register" method="POST" action="{{ url_for('login_signup') }}">
+      <div class="input-container">
+        <input type="text" name="username" required>
+        <label class="input-label">Логин</label>
+      </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js" 
-  integrity="sha512-A7AYk1fGKX6S2SsHywmPkrnzTZHrgiVT7GcQkLGDe2ev0aWb8zejytzS8wjo7PGEXKqJOrjQ4oORtnimIRZBtw==" 
-  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="{{ url_for('static', filename='js/degreet.js') }}"></script>
+      <div class="input-container">
+        <input type="text" name="password" id="password-input-register" required>
+        <label class="input-label">Пароль</label>
+        <span class="toggle-password" onclick="togglePassword('password-input-register', 'toggle-icon-register')">
+          <i id="toggle-icon-register" class="fa-solid fa-eye"></i>
+        </span>
+      </div>
+
+      <div type="submit" class="button-container">
+        <button name="signup">Зарегистрироваться</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function toggleForm(formId) {
+    var forms = document.getElementsByClassName('form');
+    for (var i = 0; i < forms.length; i++) {
+      forms[i].classList.remove('active');
+    }
+
+    document.getElementById(formId).classList.add('active');
+
+    if (formId === 'registrationForm') {
+      document.getElementById("switchLogin").classList.remove('active');
+      document.getElementById("switchRegister").classList.add('active');
+    } else {
+      document.getElementById("switchRegister").classList.remove('active');
+      document.getElementById("switchLogin").classList.add('active');
+    }
+  }
+</script>
+
+<script>
+  function togglePassword(input, icon) {
+    var passwordInput = document.getElementById(input);
+    var toggleIcon = document.getElementById(icon);
+
+    if (passwordInput.type === "password") {
+      passwordInput.type = "text";
+      toggleIcon.classList.remove("fa-eye-slash");
+      toggleIcon.classList.add("fa-eye");
+    } else {
+      passwordInput.type = "password";
+      toggleIcon.classList.remove("fa-eye");
+      toggleIcon.classList.add("fa-eye-slash");
+    }
+  }
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"
+        integrity="sha512-A7AYk1fGKX6S2SsHywmPkrnzTZHrgiVT7GcQkLGDe2ev0aWb8zejytzS8wjo7PGEXKqJOrjQ4oORtnimIRZBtw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="{{ url_for('static', filename='js/degreet.js') }}"></script>
 </body>
 </html>
