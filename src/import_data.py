@@ -18,7 +18,7 @@ maintenance_data_columns = ['NAME', 'COL_1044', 'COL_1157', 'COL_1239', 'COL_448
 def import_data(db, file_path):
     df = pd.read_excel(file_path)
     columns = df.columns.tolist()
-    print(columns)
+    
     column_sets = {
         'house_mkd': set(house_mkd_columns),
         'incidents_urban': set(incidents_urban_columns),
@@ -33,17 +33,22 @@ def import_data(db, file_path):
             break
 
     if matched_table is None:
-        raise ValueError("The columns of the file do not match any of the import functions.")
+        return 1
     
-    df = df.replace({np.nan: None})
-    if matched_table == 'house_mkd':
-        import_house_mkd(db, df)
-    elif matched_table == 'incidents_urban':
-        import_incidents_urban(db, df)
-    elif matched_table == 'major_repairs':
-        import_major_repairs(db, df)
-    elif matched_table == 'maintenance_data':
-        import_maintenance_data(db, df)
+    try:
+        df = df.replace({np.nan: None})
+        if matched_table == 'house_mkd':
+            import_house_mkd(db, df)
+        elif matched_table == 'incidents_urban':
+            import_incidents_urban(db, df)
+        elif matched_table == 'major_repairs':
+            import_major_repairs(db, df)
+        elif matched_table == 'maintenance_data':
+            import_maintenance_types(db, df)
+    except:
+        return 1
+    
+    return 0
     
 
 def import_house_mkd(db, df):
@@ -51,22 +56,15 @@ def import_house_mkd(db, df):
              'COL_761', 'COL_762', 'COL_763', 'COL_764', 'COL_769', 'COL_770', 'COL_771', 'COL_772', 
              'COL_781', 'COL_782', 'COL_2463', 'COL_3163', 'COL_3243', 'COL_3363', 'COL_3468']]
 
-    for _, row in df.iterrows():
-        try:
-            db.insert_house_mkd(row)
-        except:
-            continue
+    rows = df.to_dict('records')
+    db.insert_house_mkd(rows)
 
 
 def import_incidents_urban(db, df):
     df = df.rename(columns={'Наименование': 'NAME', 'Источник': 'SOURCE', 'Дата создания во внешней системе': 'DATEBEGIN', 
                             'Дата закрытия': 'DATEEND', 'Округ': 'DISTRICT', 'Адрес': 'ADDRESS', 'unom': 'UNOM'})
-
-    for _, row in df.iterrows():
-        try:
-            db.insert_incident_urban(row)
-        except:
-            continue
+    rows = df.to_dict('records')
+    db.insert_incidents_urban(rows)
 
 
 def import_major_repairs(db, df):
@@ -74,18 +72,12 @@ def import_major_repairs(db, df):
              'FACT_DATE_START', 'FACT_DATE_END', 'AdmArea', 'District', 'Address', 'UNOM']]
 
     for _, row in df.iterrows():
-        try:
-            db.insert_major_repairs(row)
-        except:
-            continue
+        db.insert_major_repairs(row)
 
 
-def import_maintenance_data(db, df):
+def import_maintenance_types(db, df):
     df = df[['NAME', 'COL_1044', 'COL_1157', 'COL_1239', 'COL_4489', 'COL_4923']]
     df = df[df['COL_4923'] >= datetime.now().year]
 
-    for _, row in df.iterrows():
-        try:
-            db.insert_maintenance_types(row)
-        except:
-            continue
+    rows = df.to_dict('records')
+    db.insert_maintenance_types(rows)

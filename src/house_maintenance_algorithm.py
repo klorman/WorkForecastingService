@@ -62,6 +62,48 @@ def parse_frequency(input_str):
     return None
 
 
+def schedule_tasks(new_tasks, scheduled_tasks):
+    start_date = datetime.date.today()
+    end_date = start_date + datetime.timedelta(days=1)
+
+    # Create list of all dates in the next year
+    all_dates = [start_date + datetime.timedelta(days=i) for i in range(365)]
+
+    # Create a list of dates when tasks are already scheduled
+    scheduled_dates = []
+    for last_date, frequency in scheduled_tasks:
+        next_date = last_date + datetime.timedelta(days=frequency)
+        while next_date <= end_date:
+            scheduled_dates.append(next_date)
+            next_date += datetime.timedelta(days=frequency)
+
+    # Sort new_tasks by frequency, higher frequency tasks will be scheduled first
+    sorted_new_tasks = sorted([(freq, idx) for idx, freq in enumerate(new_tasks)], reverse=True)
+    task_schedule = []
+
+    for frequency, task_id in sorted_new_tasks:
+        for date in all_dates:
+            # Ignore dates when tasks are already scheduled
+            if date in scheduled_dates:
+                continue
+            if date.toordinal() % frequency == 0:
+                task_schedule.append((task_id, date))
+                break
+
+    return task_schedule
+
+if __name__ == "__main__":
+    # Use function
+    new_tasks = [5, 7, 10, 1, 1]
+    scheduled_tasks = [(datetime.date.today() - datetime.timedelta(days=5), 7),
+                       (datetime.date.today() - datetime.timedelta(days=10), 10),
+                       (datetime.date.today() - datetime.timedelta(days=11), 10)]
+    schedule = schedule_tasks(new_tasks, scheduled_tasks)
+
+    for task_id, date in schedule:
+        print(f'Task ID {task_id}: {date}')
+
+
 def order_maintenance_works_by_best_route(maintenance_works):
     #TODO
     return maintenance_works
