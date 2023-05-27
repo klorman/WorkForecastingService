@@ -41,8 +41,10 @@ class DataDownloaderImporter:
         for file in os.listdir(self.local_dir):
             if file.endswith(self.file_extension):
                 file_path = os.path.join(self.local_dir, file)
-                im.import_data(db, file_path)
-                logs.info(f"File {file} has been imported successfully.")
+                if im.import_data(db, file_path) != 0:
+                    logs.info(f"File {file} has been imported successfully.")
+                else:
+                    logs.error(f"Error importing {file}.")
 
 
     def run(self, time_period):

@@ -1,16 +1,21 @@
 from flask import Flask, render_template, redirect, url_for, request, flash, jsonify
 from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 import traceback
+import os
+import configparser
 
 from database import Database
 from logs import Logs
 
 
 logs = Logs(__name__).get_logger()
-
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret_key'
+config = configparser.ConfigParser()
+config.read('configs/app.config')
+app.config['SECRET_KEY'] = config.get('app', 'secret_key')
+app.config['UPLOAD_FOLDER'] = config.get('app', 'upload_folder')
 
 db = Database()
 login_manager = LoginManager(app)
@@ -51,7 +56,6 @@ def index():
     return redirect(url_for('login_signup'))
 
 
-@app.route('/signup', methods=['GET', 'POST'])
 @app.route('/login', methods=['GET', 'POST'])
 def login_signup():
     error_login = ''
@@ -89,7 +93,7 @@ def login_signup():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('dashboard.html')
+    return render_template('alg.html')
 
 
 @app.route('/algorithm', methods=['POST'])
@@ -104,6 +108,23 @@ def algorithm():
 def logout():
     logout_user()
     return redirect(url_for('index'))
+
+
+@app.route('/upload', methods=['POST'])
+@login_required
+def upload_file():
+    if 'file' not in request.files:
+        flash('No file part')
+        return redirect(request.url)
+    file = request.files['file']
+    if file.filename == '':
+        flash('No selected file')
+        return redirect(request.url)
+    if file:
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        flash('File successfully uploaded')
+        return redirect(url_for('dashboard'))
 
 
 if __name__ == '__main__':
