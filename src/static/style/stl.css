@@ -97,16 +97,13 @@ p{
 
 .form-box{
     white-space: nowrap;
-    position: fixed;
-    top: 30%;
-    left: 45%;
+    height: 400px;
+    width: 400px;
+    position: relative;
+    margin: 6% auto;
     background: rgba(0, 0, 0,0.6);    
     backdrop-filter: blur(5.5px);
     border-radius: 10px;
-    width: 380px;
-    height: 380px;
-    border: 1.2px solid rgba(0, 0, 0, 0.2);
-    overflow: hidden;
 }
 
 .toggle-btn{
@@ -129,6 +126,7 @@ p{
     outline: none;
     position: relative;
     color: #fff;
+    top: -50px;
     right: 0%;
 }
 
@@ -137,7 +135,7 @@ p{
     top: 0;
     left: 0;
     width: 140px;
-    height: 100%;
+    height: 120%;
     border-radius: 10px;
     background: #346FC7;
     transition: .5s;
@@ -145,7 +143,7 @@ p{
 
 .button-box{
     width: 230px;
-    margin: 100px auto;
+    margin: 30px auto;
     position: relative;
     right: 20px;
 }
@@ -171,8 +169,8 @@ p{
 #wk{
     padding: 0px 10px;
     width: 300px;
-    text-decoration: none;
-    text-align: center;
+    text-decoration: none   
+    text-align center;
     align-items: center;
     font-size: 18px;
     font-weight: 500;
@@ -180,10 +178,12 @@ p{
 }
 
 .oth-str{
+    width: 100%;
     white-space: nowrap;
     position: relative;
-    top: -45px;
+    top: -40px;
     padding: 0px 8px;
+    background: transparent;
 }
 
 #adr{
