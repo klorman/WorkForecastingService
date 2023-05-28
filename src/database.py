@@ -474,14 +474,14 @@ class Database:
     def select_major_repairs_results(self):
         try:
             query = """
-            SELECT major_repairs_types.name, house_mkd.name, major_repairs_results.date
+            SELECT major_repairs_results.id, major_repairs_types.name, house_mkd.name, major_repairs_results.date
             FROM major_repairs_results
             JOIN major_repairs_types ON major_repairs_types.id = major_repairs_results.major_repairs_types
             JOIN house_mkd ON house_mkd.unom = major_repairs_results.unom
             """
             self.cursor.execute(query)
             data = self.cursor.fetchall()
-            columns = ["Работа", "Адрес", "Дата"]
+            columns = ["id", "Работа", "Адрес", "Дата"]
             df = pd.DataFrame(data, columns=columns)
             df = df.fillna('')
             return df
@@ -506,3 +506,13 @@ class Database:
             return df
         except Exception as e:
             self.logs.error(f"Failed to fetch algorithm result by id: {e}, Traceback: {traceback.format_exc()}")
+
+
+    def delete_row(self, table_name, id):
+        try:
+            query = f"DELETE FROM {table_name} WHERE id = %s"
+            values = (id,)
+            self.cursor.execute(query, values)
+            self.connection.commit()
+        except Exception as e:
+            self.logs.error(f"Failed to delete row from {table_name}: {e}")

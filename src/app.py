@@ -20,6 +20,8 @@ app.config['UPLOAD_FOLDER'] = config.get('app', 'upload_folder')
 db = Database()
 login_manager = LoginManager(app)
 
+result_changes = []
+
 
 class User(UserMixin):
     def __init__(self, id, username, password):
@@ -55,6 +57,18 @@ def handle_error(e):
 def index():
     return redirect(url_for('login_signup'))
 
+
+@app.route('/delete_row', methods=['POST'])
+@login_required
+def delete_row():
+    try:
+        data = request.get_json()
+        print(data)
+        db.delete_row(data['table_name'], data['id'])
+        return jsonify(status='success')
+    except Exception as e:
+        return jsonify(status='fail', message=str(e))
+    
 
 @app.route('/login', methods=['GET', 'POST'])
 def login_signup():
@@ -94,9 +108,9 @@ def login_signup():
 @login_required
 def dashboard():
     df = db.select_major_repairs_results()
-    major_repairs_table = df.head(100).to_html()
+    major_repairs_table = df.head(100).to_dict('records')
     df = get_maintenance_works_by_date(db)
-    maintenance_table = df.head(100).to_html()
+    maintenance_table = df.head(100).to_dict('records')
     return render_template('alg.html', table1=major_repairs_table, table2=maintenance_table)
 
 

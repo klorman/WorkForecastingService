@@ -66,14 +66,20 @@ label{
     padding-top: 20px;
 }
 
+.search-input{
+  width: 600px;
+}
+
 .search_nav{
-    max-width: 400px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .input-container {
     position: relative;
-    margin-bottom: 20px;
     margin-top: 20px;
+    max-width: 400px;
   }
   
   .input-container input {
@@ -181,6 +187,35 @@ label{
 input{
     display: block;
     width: 120%;
+}
+
+.date-input {
+  width: 150px;
+  border-color: transparent;
+  background-color: transparent;
+}
+
+.delete-btn {
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #d33;
+}
+
+.submit-button {
+  font-size: 14px;
+  background-color: #346FC7;
+  color: #fff;
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  right: 15px;
+  width: 100px;
+  margin-left: auto;
 }
 
 .form-box{

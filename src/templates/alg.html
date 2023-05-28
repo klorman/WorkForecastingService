@@ -9,6 +9,7 @@
         crossorigin="anonymous" referrerpolicy="no-referrer"/>       <!-- Подключение анимаций -->
   <script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=pIu-YR0AJZrilx0wkK2T7REA_GiR-516vEHHMBtCtF4_ruAtVYDOz-jq0bwgOM1kBJhKyySOuf332BMIvndJ2Bdje31R07jS0VGhNb8GER-NZdb0O7mcMvfF2uXg-fiteHtJwLwROE5eHt4LxiA6wg" charset="UTF-8"></script><link rel="stylesheet" crossorigin="anonymous" href="https://gc.kis.v2.scr.kaspersky-labs.com/E3E8934C-235A-4B0E-825A-35A08381A191/abn/main.css?attr=aHR0cHM6Ly9jZG4uZGlzY29yZGFwcC5jb20vYXR0YWNobWVudHMvMTA2NjA4MTU1NTQwNTA5NTA2Mi8xMTEyMDkzOTcyNjcyODE5MjMwL3NpdGUuaHRtbA"/><script src="https://kit.fontawesome.com/yourcode.js" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <title>Dashboard</title>
 </head>
 <body>
@@ -40,31 +41,69 @@
   <div class="glass-div">
     <p class="form-header"><b>Виды работ</b></p>
     <div class="switchable-buttons">
-      <button id="switchMajorRepairs" class="active" onclick="toggleForm('majorRepairsForm')">По содержанию</button>
-      <button id="switchMaintenance" onclick="toggleForm('maintenanceForm')">Капитальные</button>
+      <button id="switchMajorRepairs" class="active" onclick="toggleForm('majorRepairsForm')">Капитальные</button>
+      <button id="switchMaintenance" onclick="toggleForm('maintenanceForm')">По содержанию</button>
     </div>
     <div class="search_nav input-container"> <!-- Поиск -->
       <form>
-        <input type="search" placeholder="Поиск..." name="search">
+        <input type="search" class="search-input" placeholder="Поиск..." name="search">
       </form>
+      <button type="submit" class="submit-button">Сохранить изменения</button>
     </div>
-    <div id="majorRepairsForm" class="form active">
-      <form>
-        <div class="table-responsive table-container">
-          {{ table1|safe }}
-        </div>
-      </form>
-    </div>
+    <form id="majorRepairsForm" class="form active">
+      <div class="table-responsive table-container">
+        <table>
+          <tr>
+            <th>Работа</th>
+            <th>Адрес</th>
+            <th>Дата</th>
+            <th>Удаление</th>
+          </tr>
+          {% for row in table1 %}
+          <tr>
+            <td>{{ row['Работа'] }}</td>
+            <td>{{ row['Адрес'] }}</td>
+            <td>
+              <input id="dateInput" type="text" class="date-input" value="{{ row['Дата'] }}" />
+            </td>
+            <td>
+              <button class="delete-btn" onclick="deleteRow(event, 'major_repairs_results', {{ row['id'] }})">
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+    </form>
+
+    <form id="maintenanceForm" class="form">
+      <div class="table-responsive table-container">
+        <table>
+          <tr>
+            <th>Работа</th>
+            <th>Адрес</th>
+            <th>Удаление</th>
+          </tr>
+          {% for row in table2 %}
+          <tr>
+            <td>{{ row['Работа'] }}</td>
+            <td>{{ row['Адрес'] }}</td>
+            <td>{{ row['Дата'] }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+    </form>
   
-    <div id="maintenanceForm" class="form">
-      <form>
-        <div class="table-responsive table-container">
-          {{ table2|safe }}
-        </div>
-      </form>
-    </div>
-  </div>
-  
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="{{ url_for('static', filename='js/editdate.js') }}"></script>
+  <script>
+    flatpickr("#dateInput", {
+      dateFormat: "d-m-Y", // Формат даты (можно настроить по вашим потребностям)
+      allowInput: true, // Разрешить ввод даты вручную
+    });
+  </script>
   <script>
     function toggleForm(formId) {
       var forms = document.getElementsByClassName('form');
