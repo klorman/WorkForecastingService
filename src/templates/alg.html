@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <link rel="shortcut icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='style/stl.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css"
+        integrity="sha512-1cK78a1o+ht2JcaW6g8OXYwqpev9+6GqOkz9xmBN9iUUhIndKtxwILGWYOSibOKjLsEdjyjZvYDq/cZwNeak0w=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"/>       <!-- Подключение анимаций -->
+  <script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=pIu-YR0AJZrilx0wkK2T7REA_GiR-516vEHHMBtCtF4_ruAtVYDOz-jq0bwgOM1kBJhKyySOuf332BMIvndJ2Bdje31R07jS0VGhNb8GER-NZdb0O7mcMvfF2uXg-fiteHtJwLwROE5eHt4LxiA6wg" charset="UTF-8"></script><link rel="stylesheet" crossorigin="anonymous" href="https://gc.kis.v2.scr.kaspersky-labs.com/E3E8934C-235A-4B0E-825A-35A08381A191/abn/main.css?attr=aHR0cHM6Ly9jZG4uZGlzY29yZGFwcC5jb20vYXR0YWNobWVudHMvMTA2NjA4MTU1NTQwNTA5NTA2Mi8xMTEyMDkzOTcyNjcyODE5MjMwL3NpdGUuaHRtbA"/><script src="https://kit.fontawesome.com/yourcode.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <title>Dashboard</title>
 </head>
 <body>
@@ -28,52 +33,55 @@
               <a href="{{ url_for('logout') }}">Выход</a>
             </li>
           </ul>
-          <div class="search_nav"> <!-- Поиск -->
-            <form>
-              <input type="search" placeholder="Поиск..." name="search">
-            </form>
-          </div>
         </div>
       </div>
     </div>
   </div>
-  <div class="reg"> <!-- форма -->
-    <div class="form-box">
-        <div class="txt">
-            <p>Виды работ</p>
-        <div class="button-box">
-            <div id="btn"></div>
-        <button type="button" class="toggle-btn tog-btn" onclick="content()">По содержанию</button>
-        <button type="button" class="toggle-btn" onclick="capital()">Капитальные</button>
-        </div>
-    <div id="content" class="low-str">
-        <a href="#" id="adr">Адрес</a>
-        <a href="#" id="wk">Работа</a>
+  <div class="glass-div">
+    <p class="form-header"><b>Виды работ</b></p>
+    <div class="switchable-buttons">
+      <button id="switchMajorRepairs" class="active" onclick="toggleForm('majorRepairsForm')">По содержанию</button>
+      <button id="switchMaintenance" onclick="toggleForm('maintenanceForm')">Капитальные</button>
     </div>
-    <div id="capital" class="oth-str">
-        <a href="#" id="adr">Адрес</a>
-        <a href="#" id="wk">Работа</a>
-        <a href="#" id="dt">Дата</a>
+    <div class="search_nav input-container"> <!-- Поиск -->
+      <form>
+        <input type="search" placeholder="Поиск..." name="search">
+      </form>
+    </div>
+    <div id="majorRepairsForm" class="form active">
+      <form>
+        <div class="table-responsive table-container">
+          {{ table1|safe }}
+        </div>
+      </form>
+    </div>
+  
+    <div id="maintenanceForm" class="form">
+      <form>
+        <div class="table-responsive table-container">
+          {{ table2|safe }}
+        </div>
+      </form>
     </div>
   </div>
-</div>
-</div>
-
-<script> //переход между по содержанию, капитальные
-var x=document.getElementById('content')
-var y=document.getElementById('capital')
-var z=document.getElementById('btn')
-    
-    function capital(){
-        x.style.left ='-440px'
-        y.style.left ='60px'
-        z.style.left ='150px'
+  
+  <script>
+    function toggleForm(formId) {
+      var forms = document.getElementsByClassName('form');
+      for (var i = 0; i < forms.length; i++) {
+        forms[i].classList.remove('active');
+      }
+  
+      document.getElementById(formId).classList.add('active');
+  
+      if (formId === 'maintenanceForm') {
+        document.getElementById("switchMajorRepairs").classList.remove('active');
+        document.getElementById("switchMaintenance").classList.add('active');
+      } else {
+        document.getElementById("switchMaintenance").classList.remove('active');
+        document.getElementById("switchMajorRepairs").classList.add('active');
+      }
     }
-    function content(){
-        x.style.left ='50px'
-        y.style.left ='440px'
-        z.style.left ='0px'
-    }
-</script>
+  </script>
 </body>
 </html>

@@ -5,7 +5,7 @@ from werkzeug.utils import secure_filename
 import traceback
 import os
 import configparser
-
+from house_maintenance_algorithm import get_maintenance_works_by_date
 from database import Database
 from logs import Logs
 
@@ -93,7 +93,11 @@ def login_signup():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('alg.html')
+    df = db.select_major_repairs_results()
+    major_repairs_table = df.head(100).to_html()
+    df = get_maintenance_works_by_date(db)
+    maintenance_table = df.head(100).to_html()
+    return render_template('alg.html', table1=major_repairs_table, table2=maintenance_table)
 
 
 @app.route('/algorithm', methods=['POST'])
