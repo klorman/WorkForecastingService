@@ -312,11 +312,20 @@ class Database:
 
     def select_upcoming_maintenance_dates(self, date):
         try:
-            query = "SELECT unom, work_type, last_work_date, next_work_date FROM maintenance_dates WHERE next_work_date >= %s"
+            query = """
+            SELECT maintenance_types.name, house_mkd.name, maintenance_dates.next_work_date 
+            FROM maintenance_dates
+            JOIN maintenance_types ON maintenance_types.id = maintenance_dates.work_type
+            JOIN house_mkd ON house_mkd.unom = maintenance_dates.unom
+            WHERE next_work_date >= %s
+            """
             values = (date,)
             self.cursor.execute(query, values)
-            rows = self.cursor.fetchall()
-            return rows
+            data = self.cursor.fetchall()
+            columns = ["Работа", "Адрес", "Дата"]
+            df = pd.DataFrame(data, columns=columns)
+            df = df.fillna('')
+            return df
         except Exception as e:
             self.logs.error(f"Failed to fetch upcoming maintenance dates: {e}, Traceback: {traceback.format_exc()}")
             return []
@@ -462,6 +471,24 @@ class Database:
             self.logs.error(f"Failed to insert algorithm result: {e}, Traceback: {traceback.format_exc()}")
 
 
+    def select_major_repairs_results(self):
+        try:
+            query = """
+            SELECT major_repairs_types.name, house_mkd.name, major_repairs_results.date
+            FROM major_repairs_results
+            JOIN major_repairs_types ON major_repairs_types.id = major_repairs_results.major_repairs_types
+            JOIN house_mkd ON house_mkd.unom = major_repairs_results.unom
+            """
+            self.cursor.execute(query)
+            data = self.cursor.fetchall()
+            columns = ["Работа", "Адрес", "Дата"]
+            df = pd.DataFrame(data, columns=columns)
+            df = df.fillna('')
+            return df
+        except Exception as e:
+            self.logs.error(f"Failed to fetch algorithm result by id: {e}, Traceback: {traceback.format_exc()}")
+
+
     def select_major_repairs_result_by_id(self, id):
         try:
             query = """
@@ -472,6 +499,10 @@ class Database:
             """
             values = (id,)
             self.cursor.execute(query, values)
-            return self.cursor.fetchone()
+            data = self.cursor.fetchone()
+            columns = ["Работа", "Адрес", "Дата"]
+            df = pd.DataFrame(data, columns=columns)
+            df = df.fillna('')
+            return df
         except Exception as e:
             self.logs.error(f"Failed to fetch algorithm result by id: {e}, Traceback: {traceback.format_exc()}")
