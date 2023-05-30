@@ -1,13 +1,17 @@
-from flask import Flask, render_template, redirect, url_for, request, flash, jsonify
+from flask import Flask, render_template, redirect, url_for, request, flash, jsonify, Response
 from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 import traceback
 import os
 import configparser
+import io
 from house_maintenance_algorithm import get_maintenance_works_by_date
 from database import Database
 from logs import Logs
+from import_data import import_data
+import pandas as pd
+from model import get_result, additional_training, get_model_and_opt
 
 
 logs = Logs(__name__).get_logger()
@@ -17,10 +21,34 @@ config.read('configs/app.config')
 app.config['SECRET_KEY'] = config.get('app', 'secret_key')
 app.config['UPLOAD_FOLDER'] = config.get('app', 'upload_folder')
 
+model, opt = get_model_and_opt()
 db = Database()
 login_manager = LoginManager(app)
+major_repairs_results_df = db.select_major_repairs_results()
+maintenance_works_df = get_maintenance_works_by_date(db)
 
-result_changes = []
+
+def get_results(model):
+    try:
+        df_house_mkd = db.select_house_mkd()
+        df_incidents_urban = db.select_incidents_urban()
+        df_major_repairs = db.select_major_repairs()
+
+        model_result = get_result(df_house_mkd, df_incidents_urban, df_major_repairs, model)
+        print(model_result)
+        unom = "unom_value"
+        date = "date_value"
+        rows = []
+        for work_id, preds in model_result.items():
+            major_rapairs_type = preds
+            row = (unom, major_rapairs_type, date)
+            print(row)
+            rows.append(row)
+        db.insert_major_repairs_results(rows)
+        major_repairs_results_df = db.select_major_repairs_results()
+        print("Data inserted successfully.")
+    except Exception as e:
+        print("An error occurred:", e)
 
 
 class User(UserMixin):
@@ -58,16 +86,22 @@ def index():
     return redirect(url_for('login_signup'))
 
 
-@app.route('/delete_row', methods=['POST'])
+@app.route('/submit_changes', methods=['POST'])
 @login_required
-def delete_row():
+def submit_changes():
+    data = request.get_json()
+    ids_to_delete = data['ids_to_delete']
+    rows_to_update = data['rows_to_update']
     try:
-        data = request.get_json()
-        print(data)
-        db.delete_row(data['table_name'], data['id'])
+        for id in ids_to_delete:
+            db.delete_row('major_repairs_results', ids_to_delete)
+        for row in rows_to_update:
+            id = row['id']
+            date = row['date']
+            db.update_major_repairs_result_by_id(date, id)
         return jsonify(status='success')
     except Exception as e:
-        return jsonify(status='fail', message=str(e))
+        return jsonify(status='failure', message=str(e))
     
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -104,13 +138,30 @@ def login_signup():
     return render_template('site.html', error_login=error_login, error_signup=error_signup)
 
 
+@app.route('/load_data', methods=['GET'])
+@login_required
+def load_data():
+    page = request.args.get('page', default = 1, type = int)
+    page_size = request.args.get('page_size', default = 100, type = int)
+    table = request.args.get("table")
+
+    start = (page - 1) * page_size
+    end = start + page_size
+    if table == "major_repairs_results":
+        major_repairs_table = major_repairs_results_df.iloc[start:end].to_dict("records")
+        return jsonify({"table1": major_repairs_table})
+    elif table == "maintenance_works_results":
+        maintenance_table = maintenance_works_df.iloc[start:end].to_dict("records")
+        return jsonify({"table2": maintenance_table})
+    else:
+        return jsonify({})
+
+
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    df = db.select_major_repairs_results()
-    major_repairs_table = df.head(100).to_dict('records')
-    df = get_maintenance_works_by_date(db)
-    maintenance_table = df.head(100).to_dict('records')
+    major_repairs_table = major_repairs_results_df.head(100).to_dict('records')
+    maintenance_table = maintenance_works_df.head(100).to_dict('records')
     return render_template('alg.html', table1=major_repairs_table, table2=maintenance_table)
 
 
@@ -128,6 +179,21 @@ def logout():
     return redirect(url_for('index'))
 
 
+@app.route('/download', methods=['GET'])
+@login_required
+def download():
+    df = db.select_major_repairs_results()
+    with io.BytesIO() as output:
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            df.to_excel(writer, sheet_name='Sheet1', index=False)
+        data = output.getvalue()
+    return Response(
+        data,
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-disposition":
+                 "attachment; filename=major_repairs_results.xlsx"})
+
+
 @app.route('/upload', methods=['POST'])
 @login_required
 def upload_file():
@@ -141,9 +207,18 @@ def upload_file():
     if file:
         filename = secure_filename(file.filename)
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        flash('File successfully uploaded')
+        result = import_data(db, os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        if result == 0:
+            df_house_mkd = db.select_house_mkd()
+            df_incidents_urban = db.select_incidents_urban()
+            df_major_repairs = db.select_major_repairs()
+            model, opt = additional_training(df_house_mkd, df_incidents_urban, df_major_repairs, opt, model)
+            flash('File successfully uploaded')
+        else:
+            flash('An error occurred while uploading the file')
         return redirect(url_for('dashboard'))
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    get_results(model)
+    app.run(host='0.0.0.0', port=5000, debug=False)

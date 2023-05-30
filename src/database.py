@@ -115,8 +115,8 @@ class Database:
     def select_house_mkd(self):
         try:
             query = """
-            SELECT house_mkd.col_756, col_758.name, house_mkd.col_760, house_mkd.col_761, house_mkd.col_762, house_mkd.col_763, 
-            house_mkd.col_764, col_769.name, col_770.name, house_mkd.col_771, house_mkd.col_772, col_781.name, house_mkd.col_3363
+            SELECT house_mkd.col_756, col_758.name, house_mkd.col_759, house_mkd.col_760, house_mkd.col_761, house_mkd.col_762, house_mkd.col_763, 
+            house_mkd.col_764, col_769.name, col_770.name, house_mkd.col_771, house_mkd.col_772, col_781.name, house_mkd.col_3363, house_mkd.unom
             FROM public.house_mkd
             JOIN col_758 ON col_758.ID = house_mkd.col_758
             JOIN col_769 ON col_769.ID = house_mkd.col_769
@@ -126,9 +126,9 @@ class Database:
             self.cursor.execute(query)
             data = self.cursor.fetchall()
             columns = ["COL_756", "COL_758", "COL_759", "COL_760", "COL_761", "COL_762", "COL_763", 
-                       "COL_765", "COL_769", "COL_770", "COL_771", "COL_772", "COL_781", "COL_3363"]
+                       "COL_764", "COL_769", "COL_770", "COL_771", "COL_772", "COL_781", "COL_3363", "COL_782"]
             df = pd.DataFrame(data, columns=columns)
-            df = df.fillna('')
+            df = df.fillna('0')
             return df
 
         except Exception as e:
@@ -182,15 +182,15 @@ class Database:
     def select_incidents_urban(self):
         try:
             query = """
-            SELECT event_types.name, incidents_urban.dateend, incidents_urban.datebegin
+            SELECT event_types.name, incidents_urban.dateend, incidents_urban.datebegin, incidents_urban.unom
             FROM public.incidents_urban
-            JOIN incidents_urban ON incidents_urban.id = incidents_urban.event_types;
+            JOIN event_types ON event_types.id = incidents_urban.event_types;
             """
             self.cursor.execute(query)
             data = self.cursor.fetchall()
-            columns = ["Наименование", "Дата закрытия", "Дата создания во внешней системе"]
+            columns = ["Наименование", "Дата закрытия", "Дата создания во внешней системе", "unom"]
             df = pd.DataFrame(data, columns=columns)
-            df = df.fillna('')
+            df = df.fillna('0')
             return df
 
         except Exception as e:
@@ -232,15 +232,15 @@ class Database:
     def select_major_repairs(self):
         try:
             query = """
-            SELECT major_repairs_types.name, major_repairs.plan_date_start, major_repairs.fact_date_start
+            SELECT major_repairs_types.name, major_repairs.plan_date_start, major_repairs.fact_date_start, major_repairs.unom
             FROM public.major_repairs
             JOIN major_repairs_types ON major_repairs_types.id = major_repairs.work_name;
             """
             self.cursor.execute(query)
             data = self.cursor.fetchall()
-            columns = ["WORK_NAME", "PLAN_DATE_START", "FACT_DATE_START"]
+            columns = ["WORK_NAME", "PLAN_DATE_START", "FACT_DATE_START", "UNOM"]
             df = pd.DataFrame(data, columns=columns)
-            df = df.fillna('')
+            df = df.fillna('0')
             return df
 
         except Exception as e:
@@ -446,6 +446,18 @@ class Database:
             return self.cursor.fetchone()
         except Exception as e:
             self.logs.error(f"Failed to fetch user by id: {e}, Traceback: {traceback.format_exc()}")
+
+
+    def update_major_repairs_result_by_id(self, date, id):
+        try:
+            print(date, id)
+            query = "UPDATE major_repairs_results SET date = %s WHERE id = %s"
+            values = (date, id)
+            self.cursor.execute(query, values)
+            self.conn.commit()
+        except Exception as e:
+            self.conn.rollback()
+            self.logs.error(f"Failed to update major repairs result: {e}, Traceback: {traceback.format_exc()}")
 
 
     def insert_major_repairs_results(self, rows):

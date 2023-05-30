@@ -20,7 +20,7 @@
         <div class="nav">
           <ul class="menu">
             <li>
-              <a download="" href="#">Скачать</a>
+              <a download="" href="/download">Скачать</a>
             </li>
             <li>
               <form id="upload-form" action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
@@ -42,17 +42,17 @@
     <p class="form-header"><b>Виды работ</b></p>
     <div class="switchable-buttons">
       <button id="switchMajorRepairs" class="active" onclick="toggleForm('majorRepairsForm')">Капитальные</button>
-      <button id="switchMaintenance" onclick="toggleForm('maintenanceForm')">По содержанию</button>
+      <button id="switchMaintenance" onclick="toggleForm('maintenanceWorksForm')">По содержанию</button>
     </div>
     <div class="search_nav input-container"> <!-- Поиск -->
       <form>
         <input type="search" class="search-input" placeholder="Поиск..." name="search">
       </form>
-      <button type="submit" class="submit-button">Сохранить изменения</button>
+      <button id="submitButton" class="submit-button form active" onclick="submitChanges(event)">Сохранить изменения</button>
     </div>
     <form id="majorRepairsForm" class="form active">
-      <div class="table-responsive table-container">
-        <table>
+      <div id="majorRepairsTableContainer" class="table-responsive table-container">
+        <table id="majorRepairsTable">
           <tr>
             <th>Работа</th>
             <th>Адрес</th>
@@ -64,7 +64,7 @@
             <td>{{ row['Работа'] }}</td>
             <td>{{ row['Адрес'] }}</td>
             <td>
-              <input id="dateInput" type="text" class="date-input" value="{{ row['Дата'] }}" />
+              <input id="dateInput" type="text" class="date-input" value="{{ row['Дата'] }}" onchange="updateDate(event, 'major_repairs_results', {{ row['id'] }})" />
             </td>
             <td>
               <button class="delete-btn" onclick="deleteRow(event, 'major_repairs_results', {{ row['id'] }})">
@@ -77,13 +77,13 @@
       </div>
     </form>
 
-    <form id="maintenanceForm" class="form">
-      <div class="table-responsive table-container">
-        <table>
+    <form id="maintenanceWorksForm" class="form">
+      <div id="maintenanceWorksTableContainer" class="table-responsive table-container">
+        <table id="maintenanceWorksTable">
           <tr>
             <th>Работа</th>
             <th>Адрес</th>
-            <th>Удаление</th>
+            <th>Дата</th>
           </tr>
           {% for row in table2 %}
           <tr>
@@ -100,8 +100,8 @@
   <script src="{{ url_for('static', filename='js/editdate.js') }}"></script>
   <script>
     flatpickr("#dateInput", {
-      dateFormat: "d-m-Y", // Формат даты (можно настроить по вашим потребностям)
-      allowInput: true, // Разрешить ввод даты вручную
+      dateFormat: "Y-m-d",
+      allowInput: true,
     });
   </script>
   <script>
@@ -113,14 +113,170 @@
   
       document.getElementById(formId).classList.add('active');
   
-      if (formId === 'maintenanceForm') {
+      if (formId === 'maintenanceWorksForm') {
         document.getElementById("switchMajorRepairs").classList.remove('active');
+        document.getElementById("submitButton").classList.remove('active')
         document.getElementById("switchMaintenance").classList.add('active');
       } else {
         document.getElementById("switchMaintenance").classList.remove('active');
+        document.getElementById("submitButton").classList.add('active')
         document.getElementById("switchMajorRepairs").classList.add('active');
       }
     }
+  </script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script>
+    var majorRepairsPage = 1;
+    var majorRepairsPageSize = 100;
+    var majorRepairsLoading = false;
+  
+    function loadMoreMajorRepairsData() {
+      if (majorRepairsLoading) return;
+  
+      var tableContainer = document.getElementById("majorRepairsTableContainer");
+      var dataTable = document.getElementById("majorRepairsTable");
+  
+      var containerHeight = tableContainer.offsetHeight;
+      var scrollHeight = tableContainer.scrollHeight;
+      var scrollTop = tableContainer.scrollTop;
+  
+      if (containerHeight + scrollTop >= scrollHeight) {
+        majorRepairsLoading = true;
+  
+        var xhr = new XMLHttpRequest();
+        xhr.open(
+          "GET",
+          "/load_data?page=" +
+            majorRepairsPage +
+            "&page_size=" +
+            majorRepairsPageSize +
+            "&table=major_repairs_results",
+          true
+        );
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            var response = JSON.parse(xhr.responseText);
+            var newRows = response.table1;
+  
+            if (newRows.length > 0) {
+              majorRepairsPage++;
+              majorRepairsLoading = false;
+  
+              for (var i = 0; i < newRows.length; i++) {
+                var row = newRows[i];
+                var newRow = dataTable.insertRow(-1);
+  
+                var cell1 = newRow.insertCell(0);
+                cell1.innerHTML = row["Работа"];
+  
+                var cell2 = newRow.insertCell(1);
+                cell2.innerHTML = row["Адрес"];
+  
+                var cell3 = newRow.insertCell(2);
+                var input = document.createElement("input");
+                input.type = "text";
+                input.className = "date-input";
+                input.value = row["Дата"];
+                input.onchange = function (event) {
+                  updateDate(event, "major_repairs_results", row["id"]);
+                };
+                cell3.appendChild(input);
+  
+                var cell4 = newRow.insertCell(3);
+                var button = document.createElement("button");
+                button.className = "delete-btn";
+                button.onclick = function (event) {
+                  deleteRow(event, "major_repairs_results", row["id"]);
+                };
+                var icon = document.createElement("i");
+                icon.className = "fas fa-trash";
+                button.appendChild(icon);
+                cell4.appendChild(button);
+              }
+            }
+          }
+        };
+        xhr.send();
+      }
+    }
+  
+    var majorRepairsTableContainer = document.getElementById(
+      "majorRepairsTableContainer"
+    );
+    majorRepairsTableContainer.addEventListener(
+      "scroll",
+      loadMoreMajorRepairsData
+    );
+
+
+    var maintenanceWorksPage = 1;
+    var maintenanceWorksPageSize = 100;
+    var maintenanceWorksLoading = false;
+  
+    function loadMoreMaintenanceWorksData() {
+      if (maintenanceWorksLoading) return;
+  
+      var tableContainer = document.getElementById("maintenanceWorksTableContainer");
+      var dataTable = document.getElementById("maintenanceWorksTable");
+  
+      var containerHeight = tableContainer.offsetHeight;
+      var scrollHeight = tableContainer.scrollHeight;
+      var scrollTop = tableContainer.scrollTop;
+  
+      if (containerHeight + scrollTop >= scrollHeight) {
+        maintenanceWorksLoading = true;
+  
+        var xhr = new XMLHttpRequest();
+        xhr.open(
+          "GET",
+          "/load_data?page=" +
+            maintenanceWorksPage +
+            "&page_size=" +
+            maintenanceWorksPageSize +
+            "&table=maintenance_works_results",
+          true
+        );
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            var response = JSON.parse(xhr.responseText);
+            var newRows = response.table2;
+  
+            if (newRows.length > 0) {
+              maintenanceWorksPage++;
+              maintenanceWorksLoading = false;
+  
+              for (var i = 0; i < newRows.length; i++) {
+                var row = newRows[i];
+                var newRow = dataTable.insertRow(-1);
+  
+                var cell1 = newRow.insertCell(0);
+                cell1.innerHTML = row["Работа"];
+  
+                var cell2 = newRow.insertCell(1);
+                cell2.innerHTML = row["Адрес"];
+  
+                var cell3 = newRow.insertCell(2);
+                var input = document.createElement("input");
+                input.type = "text";
+                input.className = "date-input";
+                input.value = row["Дата"];
+                input.readOnly = true;
+                cell3.appendChild(input);
+              }
+            }
+          }
+        };
+        xhr.send();
+      }
+    }
+  
+    var maintenanceWorksTableContainer = document.getElementById(
+      "maintenanceWorksTableContainer"
+    );
+    maintenanceWorksTableContainer.addEventListener(
+      "scroll",
+      loadMoreMaintenanceWorksData
+    );
   </script>
 </body>
 </html>
